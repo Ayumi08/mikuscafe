@@ -12,10 +12,21 @@ class Balance(interactions.Extension):
         description="Check current balance", 
         scopes=[DEV_GUILD] if DEV_GUILD else None
     )
-    async def check_balance(self, ctx: interactions.SlashContext):
+    @interactions.slash_option(
+        "user",
+        "User to check balance to. Defaults to sender.",
+        opt_type=interactions.OptionType.USER,
+        required=False
+    )
+    async def check_balance(self, ctx: interactions.SlashContext, user="None"):
         """Check if user is in db, if not add them"""
 
-        user_id = str(ctx.user.id)
+        if user == "None":
+            author = True
+            user_id = str(ctx.user.id)
+        else:
+            author = False
+            user_id = str(user.id)
         with open("data.json", "r") as f:
             info = json.load(f)
         if user_id not in info:
@@ -23,17 +34,24 @@ class Balance(interactions.Extension):
             with open('data.json', 'w') as f:
                 json.dump(info, f, indent=4)
 
-        embed = interactions.Embed(
-            str(ctx.user.display_name) + "'s Balance",
-            description="Your Current Balance: $" + str(info[user_id]['money']),
-            color=interactions.Color.from_hex("#86cecb"),
-        )
+        if author == True:
+            embed = interactions.Embed(
+                str(ctx.user.display_name) + "'s Balance",
+                description="Your Current Balance: $" + str(info[user_id]['money']),
+                color=interactions.Color.from_hex("#86cecb"),
+            )
+        if author == False:
+            embed = interactions.Embed(
+                str(user.display_name) + "'s Balance",
+                description="Your Current Balance: $" + str(info[user_id]['money']),
+                color=interactions.Color.from_hex("#86cecb"),
+            )
         await ctx.send(embed=embed)
 
 class Transfer(interactions.Extension):
     @interactions.slash_command(
         "transfer",
-        description="Transfers money to another user",
+        description="Transfers money to another user.",
         scopes=[DEV_GUILD] if DEV_GUILD else None
     )
     @interactions.slash_option(
