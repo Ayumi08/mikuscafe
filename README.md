@@ -1,3 +1,14 @@
-Todo
+# Todo
+- ~~ande "role that changes color every 10 seconds for lvl 100 people" (REMOVED DUE TO RATELIMIT ABUSE)~~
+- batzy "miku gambling bot"
+    - custom server currency system with gambling features, structure below
+    - userid
+        - currency: int
+        - items: []
+    - /balance (check current balance)
+    - /transfer (transfers a specified amount of currency to another user)
+    - /daily
+    - /shop
+    - /admin modify (name wip)
 
-- ande "role that changes color every 10 seconds for lvl 100 people" (REMOVED DUE TO RATELIMIT ABUSE)
+    - leaderboard
