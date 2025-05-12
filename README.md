@@ -5,7 +5,7 @@
     - userid
         - currency: int
         - items: []
-    - /balance (check current balance)
+    - /balance (check current balance) OPTIONAL ARG FOR OTHER USER
     - /transfer (transfers a specified amount of currency to another user)
     - /daily
     - /shop
