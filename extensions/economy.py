@@ -37,13 +37,13 @@ class Balance(interactions.Extension):
         if author == True:
             embed = interactions.Embed(
                 str(ctx.user.display_name) + "'s Balance",
-                description="Your Current Balance: $" + str(info[user_id]['money']),
+                description="Balance: <:leek:1371580348881961041>" + str(info[user_id]['money']),
                 color=interactions.Color.from_hex("#86cecb"),
             )
         if author == False:
             embed = interactions.Embed(
                 str(user.display_name) + "'s Balance",
-                description="Your Current Balance: $" + str(info[user_id]['money']),
+                description="Balance: <:leek:1371580348881961041>" + str(info[user_id]['money']),
                 color=interactions.Color.from_hex("#86cecb"),
             )
         await ctx.send(embed=embed)
@@ -85,18 +85,17 @@ class Transfer(interactions.Extension):
         if info[author_id]['money'] < money:
             embed = interactions.Embed(
                 "Transfer Summary",
-                description="You cannot send more than you have! You have $" + info[author_id]['money']+ "." ,
+                description="You cannot send more than you have! You have <:leek:1371580348881961041>" + str(info[author_id]['money']),
                 color=interactions.Color.from_hex("#86cecb"),
             )
-            await ctx.send(embed=embed)
-            await ctx.send("cannot transfer", ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
         else:
             info[author_id]['money'] -= money
             info[send_id]['money'] += money
 
             embed = interactions.Embed(
                 "Transfer Summary",
-                description="<@" + str(author_id) + "> sent " + str(money) + " to <@" + str(send_id) + ">" ,
+                description="<@" + str(author_id) + "> sent <:leek:1371580348881961041>" + str(money) + " to <@" + str(send_id) + ">" ,
                 color=interactions.Color.from_hex("#86cecb"),
             )
             await ctx.send(embed=embed)
