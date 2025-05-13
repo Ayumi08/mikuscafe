@@ -3,6 +3,7 @@ import interactions
 import json
 from config import DEV_GUILD
 from src import logutil
+from interactions import check, is_owner
 
 logger = logutil.init_logger(os.path.basename(__file__))
 
@@ -99,6 +100,45 @@ class Transfer(interactions.Extension):
                 color=interactions.Color.from_hex("#86cecb"),
             )
             await ctx.send(embed=embed)
+
+        with open('data.json', 'w') as f:
+            json.dump(info, f, indent=4)
+
+class Admin(interactions.Extension):
+    @interactions.slash_command(
+        "modify",
+        description="Transfers money to another user.",
+        scopes=[DEV_GUILD] if DEV_GUILD else None
+    )
+    @check(is_owner())
+    @interactions.slash_option(
+        "user",
+        "User to set",
+        opt_type=interactions.OptionType.USER,
+        required=True
+    )
+    @interactions.slash_option(
+        "money",
+        "Amount to set",
+        opt_type=interactions.OptionType.INTEGER,
+        required=True,
+    )
+    async def modify(self, ctx: interactions.SlashContext, money, user):
+        
+        with open("data.json", "r") as f:
+            info = json.load(f)
+        
+        if str(user.id) not in info:
+            info[str(user.id)] = {"money": money, "items": []}
+        else:
+            info[str(user.id)]['money'] = money
+        
+        embed = interactions.Embed(
+                "Balance Modification Summary",
+                description="<@" + str(user.id) + "> now has <:leek:1371580348881961041>" + str(money),
+                color=interactions.Color.from_hex("#86cecb"),
+            )
+        await ctx.send(embed=embed)
 
         with open('data.json', 'w') as f:
             json.dump(info, f, indent=4)
