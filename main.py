@@ -58,4 +58,13 @@ for extension in extensions:
     except interactions.errors.ExtensionLoadException as e:
         logger.exception(f"Failed to load extension {extension}.", exc_info=e)
 
+
+@interactions.slash_command(
+    name="reload",
+    description="Reloads econ extension",
+)
+async def reload_extension(ctx: interactions.SlashContext):
+    client.reload_extension("extensions.economy")
+    await ctx.send("'extension.economy' reloaded")
+
 client.start()
