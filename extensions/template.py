@@ -17,8 +17,8 @@ logger = logutil.init_logger(os.path.basename(__file__))
 
 class TemplateCog(interactions.Extension):
     @interactions.slash_command(
-        "test", description="test command", scopes=[DEV_GUILD] if DEV_GUILD else None
+        "template", description="template command please disregard", scopes=[DEV_GUILD] if DEV_GUILD else None
     )
     async def test_cmd(self, ctx: interactions.SlashContext):
         """Register as an extension command"""
-        await ctx.send("Test")
+        await ctx.send("This is the template command.")

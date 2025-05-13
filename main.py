@@ -33,12 +33,15 @@ client = interactions.Client(
         name=".gg/mikuscafe", type=interactions.ActivityType.WATCHING
     ),
     debug_scope=DEV_GUILD,
+    delete_unused_application_cmds = True,
 )
 
 
 @interactions.listen()
 async def on_startup():
     """Called when the bot starts"""
+
+    await client.synchronise_interactions()
     logger.info(f"Logged in as {client.user}")
 
 
