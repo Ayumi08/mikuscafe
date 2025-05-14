@@ -6,9 +6,8 @@
         - currency: int
         - items: []
     - ~~/balance (check current balance)~~
-    - /transfer (transfers a specified amount of currency to another user)
-    - /daily
-    - /shop
-    - /admin modify (name wip)
-
+    - ~~/transfer (transfers a specified amount of currency to another user)~~
+    - /daily (dont wanna do no more)
+    - /shop (maybe later)
+    - ~~/admin modify~~
     - leaderboard
