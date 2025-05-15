@@ -24,7 +24,7 @@ class MessageEvents(interactions.Extension):
             embed.set_image(url="https://images-ext-1.discordapp.net/external/_8uAGYmcG11pgX5gWLCwCnUnI6abZiOvw-oS5TfseAM/https/retrorender.online/UbKYB1j90.gif?width=400&height=157")
             await event.message.channel.send(embed=embed)
         # Reaction to mentions event
-        elif event.message.mention_users:
+        elif event.message.mention_users and not event.message.message_reference:
             mentioned_users = [user async for user in event.message.mention_users]
             if any(mention.id == 705137748884848691 for mention in mentioned_users):
                 await event.message.add_reaction("<:firefly:1372594981340053616>")

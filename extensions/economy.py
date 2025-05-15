@@ -150,12 +150,46 @@ class Admin(interactions.Extension):
             json.dump(info, f, indent=4)
 
 class Work(interactions.Extension):
+    # List of possible work messages
+    WORK_MESSAGES = [
+        "You worked as a janitor at Miku's Café",
+        "You helped organize a virtual concert",
+        "You sold some rare collectibles",
+        "You wrote song lyrics for a new track",
+        "You designed custom merchandise",
+        "You performed at a street concert",
+        "You taught an online dance class",
+        "You worked as a sound technician",
+        "You helped set up a music festival",
+        "You created digital art commissions",
+        "You worked as a waitress at Miku's Café",
+        "You composed a new background music track",
+        "You moderated a virtual fan meeting",
+        "You designed a new menu for Miku's Café",
+        "You performed as a backup dancer",
+        "You worked as a dishwasher at Miku's Café",
+        "You sold limited edition merchandise",
+        "You helped with stage lighting setup",
+        "You created fan art for the café walls",
+        "You delivered food orders from Miku's Café",
+        "You worked as a chef at Miku's Café",
+        "You organized a karaoke night",
+        "You photographed special café events",
+        "You managed the café's social media",
+        "You repaired musical equipment",
+        "You hosted a gaming tournament",
+        "You worked as a barista trainer",
+        "You designed new café uniforms",
+        "You performed at a birthday party",
+        "You helped with inventory management"
+    ]
+
     @interactions.slash_command(
         "work",
         description="Work to make money!",
         scopes=[DEV_GUILD] if DEV_GUILD else None
     )
-    @cooldown(Buckets.USER, 1, 10)
+    @cooldown(Buckets.USER, 1, 5)
     async def work(self, ctx: interactions.SlashContext):
         with open("data.json", "r") as f:
             info = json.load(f)
@@ -163,19 +197,64 @@ class Work(interactions.Extension):
         if str(ctx.user.id) not in info:
             info[str(ctx.user.id)] = {"money": 0, "items": []}
 
-        earnedmoney = random.randint(100,2000)
+        earnedmoney = random.randint(20,200)
+        work_message = random.choice(self.WORK_MESSAGES)
         
         info[str(ctx.user.id)]['money'] += earnedmoney
 
         embed = interactions.Embed(
                 "Work Summary",
-                description="You worked a shift and earned <:leek:1371580348881961041>**" + str(earnedmoney) + "**!",
+                description=f"{work_message} and earned <:leek:1371580348881961041>**{earnedmoney}**!",
                 color=interactions.Color.from_hex("#86cecb"),
             )
         await ctx.send(embed=embed)
 
         with open('data.json', 'w') as f:
             json.dump(info, f, indent=4)
+
+class Leaderboard(interactions.Extension):
+    @interactions.slash_command(
+        "leaderboard",
+        description="Shows the richest users",
+        scopes=[DEV_GUILD] if DEV_GUILD else None
+    )
+    async def leaderboard(self, ctx: interactions.SlashContext):
+        with open("data.json", "r") as f:
+            info = json.load(f)
+        
+        # Sort users by money
+        sorted_users = sorted(info.items(), key=lambda x: x[1]['money'], reverse=True)
+        
+        # Create leaderboard text
+        leaderboard_text = ""
+        for index, (user_id, data) in enumerate(sorted_users[:10], 1):
+            user = await ctx.client.fetch_user(user_id)
+            leaderboard_text += f"**{index}.** <@{user.id}> - <:leek:1371580348881961041>**{data['money']}**\n"
+        
+        # Find author's position if not in top 10
+        author_position = None
+        author_money = None
+        for index, (user_id, data) in enumerate(sorted_users, 1):
+            if user_id == str(ctx.user.id):
+                author_position = index
+                author_money = data['money']
+                break
+        
+        embed = interactions.Embed(
+            title="🏆 Leaderboard - Top 10 Richest Users",
+            description=leaderboard_text,
+            color=interactions.Color.from_hex("#86cecb"),
+        )
+        
+        # Add author's position if not in top 10
+        if author_position and author_position > 10:
+            embed.add_field(
+                name="Your Position in the Server",
+                value=f"#{author_position} - {ctx.user.display_name} - <:leek:1371580348881961041>**{author_money}**",
+                inline=False
+            )
+        
+        await ctx.send(embed=embed)
 
 class Coinflip(interactions.Extension):
     @interactions.slash_command(
@@ -291,3 +370,101 @@ class Coinflip(interactions.Extension):
         
         with open('data.json', 'w') as f:
             json.dump(info, f, indent=4)
+
+class Slots(interactions.Extension):
+    # Slot symbols and their multipliers
+    SYMBOLS = {
+        "🎵": 5,    # Music note - highest payout
+        "🎤": 4,    # Microphone
+        "💖": 3,    # Heart
+        "🌟": 2,    # Star
+        "🎪": 1     # Circus tent - lowest payout
+    }
+    
+    SYMBOLS_LIST = list(SYMBOLS.keys())
+    
+    @interactions.slash_command(
+        "slots",
+        description="Try your luck at the slot machine!",
+        scopes=[DEV_GUILD] if DEV_GUILD else None
+    )
+    @interactions.slash_option(
+        "bet",
+        'How much do you want to bet? ("all" is also valid)',
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def slots(self, ctx: interactions.SlashContext, bet):
+        with open("data.json", "r") as f:
+            info = json.load(f)
+        
+        if str(ctx.user.id) not in info:
+            info[str(ctx.user.id)] = {"money": 0, "items": []}
+        
+        try:
+            bet_amount = 0
+            if str(bet).lower() == "all":
+                bet_amount = info[str(ctx.user.id)]['money']
+            else:
+                bet_amount = int(bet)
+
+            if bet_amount <= 0:
+                embed = interactions.Embed(
+                    description="You need to bet something to play!",
+                    color=interactions.BrandColors.RED,
+                )
+                await ctx.send(embed=embed)
+                
+            if bet_amount > info[str(ctx.user.id)]['money']:
+                embed = interactions.Embed(
+                    description="You can't bet more than you have...",
+                    color=interactions.BrandColors.RED,
+                )
+                await ctx.send(embed=embed)
+
+            # Generate slot results
+            slots = [random.choice(self.SYMBOLS_LIST) for _ in range(3)]
+            
+            # Calculate winnings
+            winnings = 0
+            if slots[0] == slots[1] == slots[2]:  # All three match
+                multiplier = self.SYMBOLS[slots[0]]
+                winnings = bet_amount * multiplier
+            elif slots[0] == slots[1] or slots[1] == slots[2]:  # Two adjacent match
+                matching_symbol = slots[0] if slots[0] == slots[1] else slots[1]
+                multiplier = self.SYMBOLS[matching_symbol] // 2  # Half multiplier for two matches
+                winnings = bet_amount * multiplier
+            
+            # Update balance
+            old_balance = info[str(ctx.user.id)]['money']
+            info[str(ctx.user.id)]['money'] += (winnings - bet_amount)
+            new_balance = info[str(ctx.user.id)]['money']
+            
+            # Create result message
+            slot_display = f"[ {slots[0]} | {slots[1]} | {slots[2]} ]"
+            
+            if winnings > 0:
+                embed = interactions.Embed(
+                    title="🎰 Slots Result",
+                    description=f"**{slot_display}**\n\n🎉 **YOU WIN!** 🎉\n\nBet: <:leek:1371580348881961041>**{bet_amount}**\nWinnings: <:leek:1371580348881961041>**{winnings}**\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{new_balance}**",
+                    color=interactions.Color.from_hex("#86cecb"),
+                )
+            else:
+                embed = interactions.Embed(
+                    title="🎰 Slots Result",
+                    description=f"**{slot_display}**\n\n❌ **YOU LOSE!** ❌\n\nBet: <:leek:1371580348881961041>**{bet_amount}**\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{new_balance}**",
+                    color=interactions.BrandColors.RED,
+                )
+            
+            await ctx.send(embed=embed)
+
+        except ValueError:
+            embed = interactions.Embed(
+                description='Please input a positive integer value to bet! (or "all")',
+                color=interactions.BrandColors.RED,
+            )
+            await ctx.send(embed=embed)
+        
+        with open('data.json', 'w') as f:
+            json.dump(info, f, indent=4)
+
