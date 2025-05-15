@@ -29,7 +29,7 @@ if not os.environ.get("TOKEN"):
 
 client = interactions.Client(
     token=os.environ.get("TOKEN"),
-    intents=interactions.Intents.MESSAGE_CONTENT | interactions.Intents.GUILDS | interactions.Intents.GUILD_MESSAGES,
+    intents=interactions.Intents.MESSAGE_CONTENT | interactions.Intents.GUILDS | interactions.Intents.GUILD_MESSAGES | interactions.Intents.GUILD_MESSAGE_REACTIONS,
     activity=interactions.Activity(
         name=".gg/mikuscafe", type=interactions.ActivityType.WATCHING
     ),

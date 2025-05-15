@@ -36,3 +36,27 @@ class MessageEvents(interactions.Extension):
                 await event.message.add_reaction("<:fucku:1372598033132290129>")
             elif any(mention.id == 929368321365798932 for mention in mentioned_users):
                 await event.message.add_reaction("<:lenshock:1372601063932428388>")
+
+    @listen()
+    async def on_message_reaction_add(self, event):
+        """Event handler for when a reaction is added to a message"""
+        # The pregnant man emoji name in Discord
+        BANNED_EMOJIS = ["🫃", ]  # pregnant_man emoji
+        
+        # Check if the added reaction matches the banned emoji
+        if str(event.emoji) in BANNED_EMOJIS:
+            try:
+                # Get the channel and message objects
+                channel = await self.client.fetch_channel(event.message.channel.id)
+                message = await channel.fetch_message(event.message.id)
+                # Remove the reaction
+                await message.remove_reaction(event.emoji, event.author)
+                
+                # Send warning message that auto-deletes after 30 seconds
+                warning = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban."
+                await channel.send(warning, delete_after=30)
+                
+                logger.info(f"Removed banned emoji reaction from message {event.message.id}")
+            except Exception as e:
+                logger.error(f"Failed to remove reaction: {str(e)}")
+        
