@@ -29,6 +29,7 @@ if not os.environ.get("TOKEN"):
 
 client = interactions.Client(
     token=os.environ.get("TOKEN"),
+    intents=interactions.Intents.MESSAGE_CONTENT,
     activity=interactions.Activity(
         name=".gg/mikuscafe", type=interactions.ActivityType.WATCHING
     ),
@@ -63,7 +64,9 @@ for extension in extensions:
 )
 async def reload_extension(ctx: interactions.SlashContext):
     client.reload_extension("extensions.economy")
+    client.reload_extension("extensions.help")
     logger.info("extension.economy reloaded")
-    await ctx.send("`extension.economy` reloaded")
+    logger.info("extensions.help reloaded")
+    await ctx.send("`extension.economy` reloaded\n`extensions.help` reloaded </help:1372399261097918597>")
 
 client.start()

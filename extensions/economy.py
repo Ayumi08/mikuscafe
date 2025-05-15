@@ -1,3 +1,6 @@
+"""
+This file provides all the code for everything to do with economy.
+"""
 import os
 import interactions
 import json
