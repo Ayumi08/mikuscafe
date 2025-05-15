@@ -29,12 +29,12 @@ if not os.environ.get("TOKEN"):
 
 client = interactions.Client(
     token=os.environ.get("TOKEN"),
-    intents=interactions.Intents.MESSAGE_CONTENT,
+    intents=interactions.Intents.MESSAGE_CONTENT | interactions.Intents.GUILD_MESSAGES,
     activity=interactions.Activity(
         name=".gg/mikuscafe", type=interactions.ActivityType.WATCHING
     ),
     debug_scope=DEV_GUILD,
-    # delete_unused_application_cmds = True,
+    delete_unused_application_cmds = True,
 )
 
 

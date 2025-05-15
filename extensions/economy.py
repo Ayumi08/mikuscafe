@@ -177,7 +177,7 @@ class Work(interactions.Extension):
         with open('data.json', 'w') as f:
             json.dump(info, f, indent=4)
 
-class Gamble(interactions.Extension):
+class Coinflip(interactions.Extension):
     @interactions.slash_command(
         "coinflip",
         description="A chance to double your money.",
@@ -228,8 +228,8 @@ class Gamble(interactions.Extension):
             else:
                 if random.choice(["heads", "tails"]) == selection:
                     embed = interactions.Embed(
-                        "Coinflip",
-                        description="You bet <:leek:1371580348881961041>**" + str(money) + "** on " + selection + ".\nIt was " + selection + ". **You Win!**",
+                        title="Coinflip Result",
+                        description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] + int(money)}**",
                         color=interactions.Color.from_hex("#86cecb"),
                     )
                     await ctx.send(embed=embed)
@@ -237,14 +237,14 @@ class Gamble(interactions.Extension):
                 else:                    
                     if selection == "heads":
                         embed = interactions.Embed(
-                            "Coinflip",
-                            description="You bet <:leek:1371580348881961041>**" + str(money) + "** on " + selection + ".\nIt was tails.",
+                            title="Coinflip Result",
+                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**",
                             color=interactions.BrandColors.RED,
                         )
                     if selection == "tails":
                         embed = interactions.Embed(
-                            "Coinflip",
-                            description="You bet <:leek:1371580348881961041>**" + str(money) + "** on " + selection + ".\nIt was heads.",
+                            title="Coinflip Result",
+                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**",
                             color=interactions.BrandColors.RED,
                         )
                     await ctx.send(embed=embed)
@@ -260,8 +260,8 @@ class Gamble(interactions.Extension):
                 else:
                     if random.choice(["heads", "tails"]) == selection:
                         embed = interactions.Embed(
-                            "Coinflip",
-                            description="You bet <:leek:1371580348881961041>**" + str(info[str(ctx.user.id)]['money']) + "** on " + selection + ".\nIt was " + selection + ". **You Win!**",
+                            title="Coinflip Result",
+                            description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] * 2}**",
                             color=interactions.Color.from_hex("#86cecb"),
                         )
                         await ctx.send(embed=embed)
@@ -270,14 +270,14 @@ class Gamble(interactions.Extension):
                     else:
                         if selection == "heads":
                             embed = interactions.Embed(
-                                "Coinflip",
-                                description="You bet <:leek:1371580348881961041>**" + str(info[str(ctx.user.id)]['money']) + "** on " + selection + ".\nIt was tails.",
+                                title="Coinflip Result",
+                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**",
                                 color=interactions.BrandColors.RED,
                             )
                         if selection == "tails":
                             embed = interactions.Embed(
-                                "Coinflip",
-                                description="You bet <:leek:1371580348881961041>**" + str(info[str(ctx.user.id)]['money']) + "** on " + selection + ".\nIt was heads.",
+                                title="Coinflip Result",
+                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**",
                                 color=interactions.BrandColors.RED,
                             )
                         await ctx.send(embed=embed)
