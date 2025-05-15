@@ -1,0 +1,25 @@
+"""
+This file provides code for events like message intents.
+"""
+
+import os
+import interactions
+from src import logutil
+from interactions import listen
+
+logger = logutil.init_logger(os.path.basename(__file__))
+
+class MessageEvents(interactions.Extension):
+    @listen()
+    async def on_message_create(self, event):
+        # Check if the message content contains "miku miku" (case insensitive)
+        if "miku miku" in event.message.content.lower():
+            # Respond with "oo ee oo"
+            await event.message.channel.send("oo ee oo")
+        elif "1 2 3 ready?" in event.message.content.lower():
+            embed = interactions.Embed( 
+                title="Miku Miku BEEEEEAAAAAAMMMMM",
+                color=interactions.Color.from_hex("#86cecb")
+            )
+            embed.set_image(url="https://images-ext-1.discordapp.net/external/_8uAGYmcG11pgX5gWLCwCnUnI6abZiOvw-oS5TfseAM/https/retrorender.online/UbKYB1j90.gif?width=400&height=157")
+            await event.message.channel.send(embed=embed)

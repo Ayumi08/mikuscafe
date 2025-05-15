@@ -3,7 +3,7 @@ This file provides a code for the /help module.
 """
 import os
 import interactions
-from config import DEV_GUILD
+from config import DEV_GUILD, STAFF_IDS
 from src import logutil
 
 logger = logutil.init_logger(os.path.basename(__file__))
@@ -30,11 +30,12 @@ class Help(interactions.Extension):
                         </transfer:1371678604882087949> - Sends money to another user.
                         </work:1371957089437614081> - Work to get a bit of small cash.
                         </coinflip:1372000226117812267> - Gamble for a chance to double your money. 50/50 chance!!
+                        </blackjack:1372413229757890671> - Play blackjack with the bot!
                         """, inline=False)
         embed.set_footer("This bot was made by ayumi~. Feel free to DM for any suggestions or bug reports <3")
         await ctx.send(embed=embed)
 
-        if str(ctx.user.id) == "705137748884848691": # REPLACE WITH STAFF IDS
+        if int(ctx.user.id) in STAFF_IDS:
             embed = interactions.Embed(
             "Admin Commands",
             description="This panel shows an overview of all the commands locked to Staff Members.",

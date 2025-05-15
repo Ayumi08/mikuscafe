@@ -29,7 +29,7 @@ if not os.environ.get("TOKEN"):
 
 client = interactions.Client(
     token=os.environ.get("TOKEN"),
-    intents=interactions.Intents.MESSAGE_CONTENT | interactions.Intents.GUILD_MESSAGES,
+    intents=interactions.Intents.MESSAGE_CONTENT | interactions.Intents.GUILDS | interactions.Intents.GUILD_MESSAGES,
     activity=interactions.Activity(
         name=".gg/mikuscafe", type=interactions.ActivityType.WATCHING
     ),
@@ -60,13 +60,21 @@ for extension in extensions:
 
 @interactions.slash_command(
     name="reload",
-    description="Reloads econ extension",
+    description="Reloads all extensions",
+    scopes=[DEV_GUILD] if DEV_GUILD else None
 )
 async def reload_extension(ctx: interactions.SlashContext):
-    client.reload_extension("extensions.economy")
-    client.reload_extension("extensions.help")
-    logger.info("extension.economy reloaded")
-    logger.info("extensions.help reloaded")
-    await ctx.send("`extension.economy` reloaded\n`extensions.help` reloaded </help:1372399261097918597>")
+    reloaded_extensions = []
+    for extension in extensions:
+        try:
+            client.reload_extension(extension)
+            logger.info(f"Reloaded extension {extension}")
+            reloaded_extensions.append(f"`{extension}`")
+        except interactions.errors.ExtensionLoadException as e:
+            logger.exception(f"Failed to reload extension {extension}", exc_info=e)
+            await ctx.send(f"Failed to reload {extension}: {str(e)}")
+            return
+    
+    await ctx.send("Successfully reloaded extensions:\n" + "\n".join(reloaded_extensions))
 
 client.start()
