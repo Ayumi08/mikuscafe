@@ -4,7 +4,7 @@ from interactions import MISSING
 DEBUG = False
 
 """The scope for your bot to operate in. This should be a guild ID or list of guild IDs"""
-DEV_GUILD = 1300779712947290153
+DEV_GUILD = 1293596673691353189
 STAFF_IDS = [
     332262693626970112, # Batzy
     148697141076951041, # Retro
