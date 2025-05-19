@@ -53,7 +53,7 @@ class MessageEvents(interactions.Extension):
                 await message.remove_reaction(event.emoji, event.author)
                 
                 # Send warning message that auto-deletes after 30 seconds
-                warning = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban."
+                warning = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban. Hatsune Miku doesn't like Mpreg!"
                 await channel.send(warning, delete_after=30)
                 
                 logger.info(f"Removed banned emoji reaction from message {event.message.id}")
