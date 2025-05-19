@@ -149,7 +149,7 @@ class BlackjackExtension(interactions.Extension):
                 bet_amount = data[user_id]["money"]
                 if bet_amount == 0:
                     embed = interactions.Embed(
-                        description="You bet nothing and won absolutely nothing!!!",
+                        description="You won 60 trillion leeks and saved the Miku Universe!",
                         color=interactions.BrandColors.RED,
                     )
                     await ctx.send(embed=embed)
