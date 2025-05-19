@@ -47,11 +47,12 @@ class Help(interactions.Extension):
             )
             embed.add_field(name="Miscellaneous Commands", value=
                             """
-                            </reload:1371946845391290368> - Reloads an extension that the bot has. Used in development.
-                            </template:1371939869592522775> - Template extension that everything is based on. Used in development.
+                            /reload - Reloads an extension that the bot has. Used in development.
+                            /template - Template extension that everything is based on. Used in development.
                             """, inline=False)
             embed.add_field(name="Economy Commands", value=
                             """
-                            </modify:1371949806011813918> - Used to set a user's balance to any number. Can be used to reset to 0.
+                            /modify - Used to set a user's balance to any number. Can be used to reset to 0.
+                            /manage_items - Manage user items
                             """, inline=False)
             await ctx.send(embed=embed, ephemeral=True)
