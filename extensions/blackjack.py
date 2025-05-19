@@ -9,6 +9,8 @@ import random
 from typing import List
 import json
 from config import DEV_GUILD
+import asyncio
+from datetime import datetime, timedelta
 
 class Card:
     def __init__(self, suit: str, value: str):
@@ -71,6 +73,7 @@ class Hand:
 
 class BlackjackExtension(interactions.Extension):
     active_games = {}
+    GAME_TIMEOUT = 300  # 5 minutes in seconds
 
     def create_buttons(self):
         hit_button = Button(
@@ -121,6 +124,38 @@ class BlackjackExtension(interactions.Extension):
         )
 
         return embed
+
+    async def timeout_game(self, user_id: str):
+        """Timeout a game after GAME_TIMEOUT seconds of inactivity"""
+        await asyncio.sleep(self.GAME_TIMEOUT)
+        if user_id in self.active_games:
+            game = self.active_games[user_id]
+            if game.get("message"):
+                try:
+                    # Deduct the bet amount
+                    with open("data.json", "r") as f:
+                        data = json.load(f)
+                    
+                    bet_amount = game["bet"]
+                    data[user_id]["money"] = max(0, data[user_id]["money"] - bet_amount)
+                    
+                    with open("data.json", "w") as f:
+                        json.dump(data, f, indent=4)
+
+                    embed = interactions.Embed(
+                        title="Game Timed Out",
+                        description=f"This game has expired due to inactivity.\nYou lost your bet of <:leek:1371580348881961041>{bet_amount}",
+                        color=interactions.BrandColors.RED
+                    )
+                    embed.add_field(
+                        name="💰 Balance Update",
+                        value=f"New Balance: <:leek:1371580348881961041>**{data[user_id]['money']}**",
+                        inline=False
+                    )
+                    await game["message"].edit(embed=embed, components=[])
+                except Exception as e:
+                    print(f"Error in timeout_game: {e}")
+            del self.active_games[user_id]
 
     @interactions.slash_command(
         name="blackjack",
@@ -194,7 +229,8 @@ class BlackjackExtension(interactions.Extension):
             "player_hand": player_hand,
             "dealer_hand": dealer_hand,
             "bet": bet_amount,
-            "message": None
+            "message": None,
+            "last_action": datetime.now()
         }
 
         # Send initial game state
@@ -202,63 +238,92 @@ class BlackjackExtension(interactions.Extension):
         message = await ctx.send(embed=embed, components=self.create_buttons())
         self.active_games[user_id]["message"] = message
 
+        # Start timeout task
+        asyncio.create_task(self.timeout_game(user_id))
+
     @interactions.component_callback("hit_button")
     async def hit_callback(self, ctx: ComponentContext):
-        user_id = str(ctx.user.id)
-        
-        # Check if this is the player's game
-        if user_id not in self.active_games:
-            await ctx.send("This is not your game!", ephemeral=True)
-            return
+        try:
+            # Immediately defer the interaction to prevent timeout
+            await ctx.defer(edit_origin=True)
+            
+            user_id = str(ctx.user.id)
+            
+            # Check if this is the player's game
+            if user_id not in self.active_games:
+                await ctx.send("This is not your game!", ephemeral=True)
+                return
 
-        game = self.active_games[user_id]
-        player_hand = game["player_hand"]
-        dealer_hand = game["dealer_hand"]
-        deck = game["deck"]
-        bet = game["bet"]
+            # Update last action time
+            self.active_games[user_id]["last_action"] = datetime.now()
 
-        # Deal a new card
-        player_hand.add_card(deck.deal())
-        
-        # Check for bust
-        if player_hand.get_value() > 21:
-            await self.end_game(ctx, user_id, "BUST")
-            return
+            game = self.active_games[user_id]
+            player_hand = game["player_hand"]
+            dealer_hand = game["dealer_hand"]
+            deck = game["deck"]
+            bet = game["bet"]
 
-        # Update the game display
-        embed = self.create_game_embed(player_hand, dealer_hand, bet)
-        await ctx.message.edit(embed=embed, components=self.create_buttons())
+            # Deal a new card
+            player_hand.add_card(deck.deal())
+            
+            # Check for bust
+            if player_hand.get_value() > 21:
+                await self.end_game(ctx, user_id, "BUST")
+                return
+
+            # Update the game display
+            embed = self.create_game_embed(player_hand, dealer_hand, bet)
+            await ctx.edit(embed=embed, components=self.create_buttons())
+        except Exception as e:
+            print(f"Error in hit_callback: {e}")
+            try:
+                await ctx.send("An error occurred. Please try again.", ephemeral=True)
+            except:
+                pass
 
     @interactions.component_callback("stand_button")
     async def stand_callback(self, ctx: ComponentContext):
-        user_id = str(ctx.user.id)
-        
-        # Check if this is the player's game
-        if user_id not in self.active_games:
-            await ctx.send("This is not your game!", ephemeral=True)
-            return
+        try:
+            # Immediately defer the interaction to prevent timeout
+            await ctx.defer(edit_origin=True)
+            
+            user_id = str(ctx.user.id)
+            
+            # Check if this is the player's game
+            if user_id not in self.active_games:
+                await ctx.send("This is not your game!", ephemeral=True)
+                return
 
-        game = self.active_games[user_id]
-        player_hand = game["player_hand"]
-        dealer_hand = game["dealer_hand"]
-        deck = game["deck"]
+            # Update last action time
+            self.active_games[user_id]["last_action"] = datetime.now()
 
-        # Dealer's turn
-        while dealer_hand.get_value() < 17:
-            dealer_hand.add_card(deck.deal())
+            game = self.active_games[user_id]
+            player_hand = game["player_hand"]
+            dealer_hand = game["dealer_hand"]
+            deck = game["deck"]
 
-        # Determine winner
-        dealer_value = dealer_hand.get_value()
-        player_value = player_hand.get_value()
+            # Dealer's turn
+            while dealer_hand.get_value() < 17:
+                dealer_hand.add_card(deck.deal())
 
-        if dealer_value > 21:
-            await self.end_game(ctx, user_id, "DEALER_BUST")
-        elif dealer_value > player_value:
-            await self.end_game(ctx, user_id, "DEALER_WIN")
-        elif player_value > dealer_value:
-            await self.end_game(ctx, user_id, "PLAYER_WIN")
-        else:
-            await self.end_game(ctx, user_id, "TIE")
+            # Determine winner
+            dealer_value = dealer_hand.get_value()
+            player_value = player_hand.get_value()
+
+            if dealer_value > 21:
+                await self.end_game(ctx, user_id, "DEALER_BUST")
+            elif dealer_value > player_value:
+                await self.end_game(ctx, user_id, "DEALER_WIN")
+            elif player_value > dealer_value:
+                await self.end_game(ctx, user_id, "PLAYER_WIN")
+            else:
+                await self.end_game(ctx, user_id, "TIE")
+        except Exception as e:
+            print(f"Error in stand_callback: {e}")
+            try:
+                await ctx.send("An error occurred. Please try again.", ephemeral=True)
+            except:
+                pass
 
     async def end_game(self, ctx: ComponentContext, user_id: str, result: str):
         game = self.active_games[user_id]

@@ -197,14 +197,20 @@ class Work(interactions.Extension):
         if str(ctx.user.id) not in info:
             info[str(ctx.user.id)] = {"money": 0, "items": []}
 
+        # Check for work boost
+        has_work_boost = any(item.get("id") == "work_boost" for item in info[str(ctx.user.id)].get("items", []))
+        
         earnedmoney = random.randint(20,200)
+        if has_work_boost:
+            earnedmoney *= 2  # Double the earnings
+        
         work_message = random.choice(self.WORK_MESSAGES)
         
         info[str(ctx.user.id)]['money'] += earnedmoney
 
         embed = interactions.Embed(
                 "Work Summary",
-                description=f"{work_message} and earned <:leek:1371580348881961041>**{earnedmoney}**!",
+                description=f"{work_message} and earned <:leek:1371580348881961041>**{earnedmoney}**!" + ("\n\n⚡ **Work Boost Active!**" if has_work_boost else ""),
                 color=interactions.Color.from_hex("#86cecb"),
             )
         await ctx.send(embed=embed)
@@ -285,6 +291,10 @@ class Coinflip(interactions.Extension):
         if str(ctx.user.id) not in info:
             info[str(ctx.user.id)] = {"money": 0, "items": []}
         
+        # Check for lucky charm
+        has_lucky_charm = any(item.get("id") == "lucky_charm" for item in info[str(ctx.user.id)].get("items", []))
+        win_chance = 0.6 if has_lucky_charm else 0.5  # 60% chance to win with lucky charm, 50% without
+        
         try:
             if int(money) == 0:
                 embed = interactions.Embed(
@@ -305,10 +315,12 @@ class Coinflip(interactions.Extension):
                 )
                 await ctx.send(embed=embed)
             else:
-                if random.choice(["heads", "tails"]) == selection:
+                # Use the modified win chance
+                result = random.random() < win_chance
+                if result:
                     embed = interactions.Embed(
                         title="Coinflip Result",
-                        description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] + int(money)}**",
+                        description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] + int(money)}**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                         color=interactions.Color.from_hex("#86cecb"),
                     )
                     await ctx.send(embed=embed)
@@ -317,13 +329,13 @@ class Coinflip(interactions.Extension):
                     if selection == "heads":
                         embed = interactions.Embed(
                             title="Coinflip Result",
-                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**",
+                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                             color=interactions.BrandColors.RED,
                         )
                     if selection == "tails":
                         embed = interactions.Embed(
                             title="Coinflip Result",
-                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**",
+                            description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{money}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] - int(money)}**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                             color=interactions.BrandColors.RED,
                         )
                     await ctx.send(embed=embed)
@@ -337,10 +349,12 @@ class Coinflip(interactions.Extension):
                     )
                     await ctx.send(embed=embed)
                 else:
-                    if random.choice(["heads", "tails"]) == selection:
+                    # Use the modified win chance
+                    result = random.random() < win_chance
+                    if result:
                         embed = interactions.Embed(
                             title="Coinflip Result",
-                            description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] * 2}**",
+                            description=f"🎉 **YOU WIN!** 🎉\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was {selection}!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money'] * 2}**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                             color=interactions.Color.from_hex("#86cecb"),
                         )
                         await ctx.send(embed=embed)
@@ -350,13 +364,13 @@ class Coinflip(interactions.Extension):
                         if selection == "heads":
                             embed = interactions.Embed(
                                 title="Coinflip Result",
-                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**",
+                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was tails!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                                 color=interactions.BrandColors.RED,
                             )
                         if selection == "tails":
                             embed = interactions.Embed(
                                 title="Coinflip Result",
-                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**",
+                                description=f"❌ **YOU LOSE!** ❌\n\nYou bet <:leek:1371580348881961041>**{info[str(ctx.user.id)]['money']}** on {selection}.\nIt was heads!\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**0**" + ("\n\n🍀 **Lucky Charm Active!**" if has_lucky_charm else ""),
                                 color=interactions.BrandColors.RED,
                             )
                         await ctx.send(embed=embed)
@@ -367,103 +381,6 @@ class Coinflip(interactions.Extension):
                     color=interactions.BrandColors.RED,
                 )
                 await ctx.send(embed=embed)
-        
-        with open('data.json', 'w') as f:
-            json.dump(info, f, indent=4)
-
-class Slots(interactions.Extension):
-    # Slot symbols and their multipliers
-    SYMBOLS = {
-        "🎵": 5,    # Music note - highest payout
-        "🎤": 4,    # Microphone
-        "💖": 3,    # Heart
-        "🌟": 2,    # Star
-        "🎪": 1     # Circus tent - lowest payout
-    }
-    
-    SYMBOLS_LIST = list(SYMBOLS.keys())
-    
-    @interactions.slash_command(
-        "slots",
-        description="Try your luck at the slot machine!",
-        scopes=[DEV_GUILD] if DEV_GUILD else None
-    )
-    @interactions.slash_option(
-        "bet",
-        'How much do you want to bet? ("all" is also valid)',
-        opt_type=interactions.OptionType.STRING,
-        required=True,
-    )
-    async def slots(self, ctx: interactions.SlashContext, bet):
-        with open("data.json", "r") as f:
-            info = json.load(f)
-        
-        if str(ctx.user.id) not in info:
-            info[str(ctx.user.id)] = {"money": 0, "items": []}
-        
-        try:
-            bet_amount = 0
-            if str(bet).lower() == "all":
-                bet_amount = info[str(ctx.user.id)]['money']
-            else:
-                bet_amount = int(bet)
-
-            if bet_amount <= 0:
-                embed = interactions.Embed(
-                    description="You need to bet something to play!",
-                    color=interactions.BrandColors.RED,
-                )
-                await ctx.send(embed=embed)
-                
-            if bet_amount > info[str(ctx.user.id)]['money']:
-                embed = interactions.Embed(
-                    description="You can't bet more than you have...",
-                    color=interactions.BrandColors.RED,
-                )
-                await ctx.send(embed=embed)
-
-            # Generate slot results
-            slots = [random.choice(self.SYMBOLS_LIST) for _ in range(3)]
-            
-            # Calculate winnings
-            winnings = 0
-            if slots[0] == slots[1] == slots[2]:  # All three match
-                multiplier = self.SYMBOLS[slots[0]]
-                winnings = bet_amount * multiplier
-            elif slots[0] == slots[1] or slots[1] == slots[2]:  # Two adjacent match
-                matching_symbol = slots[0] if slots[0] == slots[1] else slots[1]
-                multiplier = self.SYMBOLS[matching_symbol] // 2  # Half multiplier for two matches
-                winnings = bet_amount * multiplier
-            
-            # Update balance
-            old_balance = info[str(ctx.user.id)]['money']
-            info[str(ctx.user.id)]['money'] += (winnings - bet_amount)
-            new_balance = info[str(ctx.user.id)]['money']
-            
-            # Create result message
-            slot_display = f"[ {slots[0]} | {slots[1]} | {slots[2]} ]"
-            
-            if winnings > 0:
-                embed = interactions.Embed(
-                    title="🎰 Slots Result",
-                    description=f"**{slot_display}**\n\n🎉 **YOU WIN!** 🎉\n\nBet: <:leek:1371580348881961041>**{bet_amount}**\nWinnings: <:leek:1371580348881961041>**{winnings}**\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{new_balance}**",
-                    color=interactions.Color.from_hex("#86cecb"),
-                )
-            else:
-                embed = interactions.Embed(
-                    title="🎰 Slots Result",
-                    description=f"**{slot_display}**\n\n❌ **YOU LOSE!** ❌\n\nBet: <:leek:1371580348881961041>**{bet_amount}**\n\n💰 **Balance Update**\nNew Balance: <:leek:1371580348881961041>**{new_balance}**",
-                    color=interactions.BrandColors.RED,
-                )
-            
-            await ctx.send(embed=embed)
-
-        except ValueError:
-            embed = interactions.Embed(
-                description='Please input a positive integer value to bet! (or "all")',
-                color=interactions.BrandColors.RED,
-            )
-            await ctx.send(embed=embed)
         
         with open('data.json', 'w') as f:
             json.dump(info, f, indent=4)

@@ -22,17 +22,19 @@ class Help(interactions.Extension):
         )
         embed.add_field(name="Miscellaneous Commands", value=
                         """
-                        </help:1372399261097918597> - Shows this help panel!
+                        /help - Shows this help panel!
                         """, inline=False)
         embed.add_field(name="Economy & Games Commands", value=
                         """
-                        </balance:1371678604882087948> - Shows a user's current balance value.
-                        </transfer:1371678604882087949> - Sends money to another user.
-                        </work:1371957089437614081> - Work to get a bit of small cash.
-                        </leaderboard:1372602973246717954> - Shows the richest users.
-                        </coinflip:1372000226117812267> - Gamble for a chance to double your money. 50/50 chance!
-                        </blackjack:1372413229757890671> - Play blackjack with the bot!
-                        </slots:1372413229757890672> - Try your luck at the slot machine!
+                        /balance - Shows a user's current balance value.
+                        /transfer - Sends money to another user.
+                        /work - Work to get a bit of small cash.
+                        /leaderboard - Shows the richest users.
+                        /coinflip - Gamble for a chance to double your money. 50/50 chance!
+                        /blackjack - Play blackjack with the bot!
+                        /shop - Pull up the shop!
+                        /buy - Buy items from the shop!
+                        /inventory - Check your inventory!
                         """, inline=False)
         embed.set_footer("This bot was made by ayumi~. Feel free to DM for any suggestions or bug reports <3")
         await ctx.send(embed=embed)
