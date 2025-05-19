@@ -1,1 +1,75 @@
-{}
+{
+    "266283000906383361": {
+        "money": 19220,
+        "items": [
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            }
+        ]
+    },
+    "1277089996515311686": {
+        "money": 100000,
+        "items": [
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
+    },
+    "957785111150071818": {
+        "money": 12638,
+        "items": [
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
+    },
+    "148697141076951041": {
+        "money": 1000,
+        "items": []
+    },
+    "792064920413274142": {
+        "money": 1000,
+        "items": []
+    },
+    "332262693626970112": {
+        "money": 0,
+        "items": []
+    },
+    "705137748884848691": {
+        "money": 0,
+        "items": []
+    },
+    "809737554823217192": {
+        "money": 5206,
+        "items": []
+    },
+    "751652451106553907": {
+        "money": 0,
+        "items": []
+    },
+    "701495375567126638": {
+        "money": 9,
+        "items": []
+    }
+}
