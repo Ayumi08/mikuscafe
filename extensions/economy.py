@@ -181,7 +181,32 @@ class Work(interactions.Extension):
         "You worked as a barista trainer",
         "You designed new café uniforms",
         "You performed at a birthday party",
-        "You helped with inventory management"
+        "You helped with inventory management",
+        "You hosted a latte art competition at Miku's Café",
+        "You translated lyrics for an international release",
+        "You managed ticket sales for a virtual concert",
+        "You built stage props for a live show",
+        "You edited a behind-the-scenes video",
+        "You created an animated intro for a livestream",
+        "You taught a voice synthesis workshop",
+        "You styled costumes for a performance",
+        "You assisted in a vocaloid software demo",
+        "You curated a themed playlist for the café",
+        "You worked as a delivery drone operator",
+        "You ran the soundcheck before a concert",
+        "You helped organize a fan art contest",
+        "You developed a café-themed mobile game",
+        "You painted a mural on the café's exterior",
+        "You crafted hand-made accessories for fans",
+        "You operated a merch booth at a convention",
+        "You designed limited-edition café mugs",
+        "You wrote a blog post about café events",
+        "You voiced a character for a promotional skit",
+        "You decorated the café for a seasonal event",
+        "You helped choreograph a new dance routine",
+        "You streamed a live DJ set featuring Miku tracks",
+        "You created a themed bento menu",
+        "You managed backstage operations during a show"
     ]
 
     @interactions.slash_command(
