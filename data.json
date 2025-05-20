@@ -1,6 +1,6 @@
 {
     "266283000906383361": {
-        "money": 19220,
+        "money": 203694,
         "items": [
             {
                 "id": "lucky_charm",
@@ -15,13 +15,8 @@
         ]
     },
     "1277089996515311686": {
-        "money": 100000,
+        "money": 105001,
         "items": [
-            {
-                "id": "lucky_charm",
-                "name": "Lucky Charm",
-                "type": "permanent"
-            },
             {
                 "id": "lucky_charm",
                 "name": "Lucky Charm",
@@ -57,19 +52,104 @@
         "items": []
     },
     "705137748884848691": {
-        "money": 0,
-        "items": []
+        "money": 39420,
+        "items": [
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
     },
     "809737554823217192": {
-        "money": 5206,
-        "items": []
+        "money": 215000,
+        "items": [
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
     },
     "751652451106553907": {
         "money": 0,
         "items": []
     },
     "701495375567126638": {
-        "money": 9,
+        "money": 12,
         "items": []
+    },
+    "1183102756328837221": {
+        "money": 1139,
+        "items": []
+    },
+    "437808476106784770": {
+        "money": 377,
+        "items": []
+    },
+    "853131561222275094": {
+        "money": 0,
+        "items": [
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
+    },
+    "699693670571704364": {
+        "money": 50992,
+        "items": [
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            },
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            }
+        ]
     }
 }
