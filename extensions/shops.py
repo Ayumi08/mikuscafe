@@ -79,6 +79,18 @@ class Shop(interactions.Extension):
         # Get item details
         item_data = SHOP_ITEMS[item]
         
+        # Check if user already owns the item
+        if "items" in info[user_id]:
+            for owned_item in info[user_id]["items"]:
+                if owned_item["id"] == item:
+                    embed = interactions.Embed(
+                        title="Purchase Failed",
+                        description=f"You already own {item_data['name']}!",
+                        color=interactions.BrandColors.RED
+                    )
+                    await ctx.send(embed=embed)
+                    return
+        
         # Check if user has enough money
         if info[user_id]["money"] < item_data["price"]:
             embed = interactions.Embed(

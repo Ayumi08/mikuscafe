@@ -76,6 +76,16 @@ class Transfer(interactions.Extension):
     async def transfer(self, ctx: interactions.SlashContext, money, user):
         """Transfer specific amount of money from author to specified user"""
 
+        # Check for negative amount
+        if money <= 0:
+            embed = interactions.Embed(
+                "Transfer Summary",
+                description="You cannot transfer a negative or zero amount!",
+                color=interactions.Color.from_hex("#86cecb"),
+            )
+            await ctx.send(embed=embed, ephemeral=True)
+            return
+
         # str of ids
         author_id = str(ctx.user.id)
         send_id = str(user.id)
