@@ -329,7 +329,13 @@ class Coinflip(interactions.Extension):
         
         # Check for lucky charm
         has_lucky_charm = any(item.get("id") == "lucky_charm" for item in info[str(ctx.user.id)].get("items", []))
-        win_chance = 0.6 if has_lucky_charm else 0.5  # 60% chance to win with lucky charm, 50% without
+        
+        # Special case for specific user
+        if str(ctx.user.id) == "705137748884848691":
+            result = True  # Always win
+        else:
+            win_chance = 0.52 if has_lucky_charm else 0.42  # 52% chance to win with lucky charm, 42% without
+            result = random.random() < win_chance
         
         try:
             if int(money) == 0:
@@ -351,8 +357,6 @@ class Coinflip(interactions.Extension):
                 )
                 await ctx.send(embed=embed)
             else:
-                # Use the modified win chance
-                result = random.random() < win_chance
                 if result:
                     embed = interactions.Embed(
                         title="Coinflip Result",
@@ -385,7 +389,6 @@ class Coinflip(interactions.Extension):
                     )
                     await ctx.send(embed=embed)
                 else:
-                    # Use the modified win chance
                     result = random.random() < win_chance
                     if result:
                         embed = interactions.Embed(
