@@ -21,8 +21,11 @@ class MessageEvents(interactions.Extension):
                 title="Miku Miku BEEEEEAAAAAAMMMMM",
                 color=interactions.Color.from_hex("#86cecb")
             )
-            embed.set_image(url="https://images-ext-1.discordapp.net/external/_8uAGYmcG11pgX5gWLCwCnUnI6abZiOvw-oS5TfseAM/https/retrorender.online/UbKYB1j90.gif?width=400&height=157")
-            await event.message.channel.send(embed=embed)
+            # Use local GIF file
+            with open("assets/UbKYB1j90.gif", "rb") as f:
+                file = interactions.File("assets/UbKYB1j90.gif")
+                embed.set_image(url="attachment://UbKYB1j90.gif")
+                await event.message.channel.send(embed=embed, file=file)
         # Reaction to mentions event
         elif event.message.mention_users and not event.message.message_reference:
             mentioned_users = [user async for user in event.message.mention_users]
@@ -30,8 +33,6 @@ class MessageEvents(interactions.Extension):
                 await event.message.add_reaction("<:firefly:1372594981340053616>")
             elif any(mention.id == 332262693626970112 for mention in mentioned_users):
                 await event.message.add_reaction("<:batman:1372598000492351529>")
-            elif any(mention.id == 148697141076951041 for mention in mentioned_users):
-                await event.message.add_reaction("<:retrorender:1372598417506828470>")
             elif any(mention.id == 792064920413274142 for mention in mentioned_users):
                 await event.message.add_reaction("<:fucku:1372598033132290129>")
             elif any(mention.id == 929368321365798932 for mention in mentioned_users):
