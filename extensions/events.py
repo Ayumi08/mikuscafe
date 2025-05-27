@@ -1,5 +1,21 @@
 """
-This file provides code for events like message intents.
+Event System for Miku's Café Bot
+
+This module implements event handlers for various Discord interactions, including:
+- Message content triggers and responses
+- Special reactions to user mentions
+- Emoji moderation and auto-removal
+- Custom reaction responses
+
+The system includes features like:
+- Case-insensitive message triggers
+- Custom embed responses with GIFs
+- Staff-specific reaction responses
+- Banned emoji moderation
+- Auto-deleting warning messages
+
+Constants:
+    BANNED_EMOJIS (List[str]): List of emojis that are banned from the server
 """
 
 import os
@@ -10,8 +26,32 @@ from interactions import listen
 logger = logutil.init_logger(os.path.basename(__file__))
 
 class MessageEvents(interactions.Extension):
+    """
+    Handles message-related events and reactions.
+    
+    This extension provides event handlers for:
+    - Message content triggers
+    - User mention reactions
+    - Emoji moderation
+    - Custom reaction responses
+    """
+    
     @listen()
-    async def on_message_create(self, event):
+    async def on_message_create(self, event: interactions.events.MessageCreate) -> None:
+        """
+        Handle message creation events.
+        
+        This method processes new messages and responds to specific triggers:
+        - "miku miku" -> responds with "oo ee oo"
+        - "1 2 3 ready?" -> responds with Miku beam GIF
+        - Staff mentions -> adds custom reactions
+        
+        Args:
+            event (MessageCreate): The message creation event
+            
+        Note:
+            Case-insensitive matching is used for all triggers
+        """
         # Check if the message content contains "miku miku" (case insensitive)
         if "miku miku" in event.message.content.lower():
             # Respond with "oo ee oo"
@@ -39,8 +79,22 @@ class MessageEvents(interactions.Extension):
                 await event.message.add_reaction("<:lenshock:1372601063932428388>")
 
     @listen()
-    async def on_message_reaction_add(self, event):
-        """Event handler for when a reaction is added to a message"""
+    async def on_message_reaction_add(self, event: interactions.events.MessageReactionAdd) -> None:
+        """
+        Handle message reaction events.
+        
+        This method processes new reactions and handles:
+        - Banned emoji removal
+        - Warning message sending
+        - Reaction moderation
+        
+        Args:
+            event (MessageReactionAdd): The reaction add event
+            
+        Note:
+            - Warning messages auto-delete after 30 seconds
+            - Failed moderation attempts are logged
+        """
         # The pregnant man emoji name in Discord
         BANNED_EMOJIS = ["🫃", ]  # pregnant_man emoji
         

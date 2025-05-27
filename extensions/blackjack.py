@@ -1,30 +1,68 @@
 """
-This file provides all the code for blackjack. 
-This was really large so I seperated from the main economy.py extension.
+Blackjack System for Miku's Café Bot
+
+This module implements a complete blackjack game system, including:
+- Card deck management and shuffling
+- Hand value calculation
+- Game state management
+- Interactive gameplay with buttons
+- Automatic timeout handling
+- Balance integration with economy system
+
+The system includes features like:
+- Standard blackjack rules
+- Interactive hit/stand buttons
+- Dealer AI (hits on 16, stands on 17)
+- Game timeout after 5 minutes of inactivity
+- Balance tracking and updates
+- Detailed game state display
+
+Constants:
+    GAME_TIMEOUT (int): Time in seconds before a game times out (300 = 5 minutes)
 """
 
 import interactions
 from interactions import Button, ButtonStyle, ComponentContext
 import random
-from typing import List
+from typing import List, Optional, Dict
 import json
 from config import DEV_GUILD
 import asyncio
 from datetime import datetime, timedelta
 
 class Card:
+    """
+    Represents a playing card in the deck.
+    
+    Attributes:
+        suit (str): The card's suit (Hearts, Diamonds, Clubs, Spades)
+        value (str): The card's value (2-10, J, Q, K, A)
+    """
+    
     def __init__(self, suit: str, value: str):
         self.suit = suit
         self.value = value
 
     def __str__(self) -> str:
+        """Returns string representation of the card."""
         return f"{self.value} of {self.suit}"
 
     def get_emoji(self) -> str:
+        """Returns emoji representation of the card."""
         return self.__str__()
 
 class Deck:
+    """
+    Represents a deck of playing cards.
+    
+    This class handles:
+    - Deck initialization
+    - Card shuffling
+    - Card dealing
+    """
+    
     def __init__(self):
+        """Initialize a new deck with 52 cards."""
         self.cards: List[Card] = []
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
         values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -33,22 +71,52 @@ class Deck:
                 self.cards.append(Card(suit, value))
         self.shuffle()
 
-    def shuffle(self):
+    def shuffle(self) -> None:
+        """Shuffle the deck of cards."""
         random.shuffle(self.cards)
 
-    def deal(self) -> Card:
+    def deal(self) -> Optional[Card]:
+        """
+        Deal a card from the deck.
+        
+        Returns:
+            Optional[Card]: The dealt card, or None if deck is empty
+        """
         if len(self.cards) > 0:
             return self.cards.pop()
         return None
 
 class Hand:
+    """
+    Represents a player's or dealer's hand of cards.
+    
+    This class handles:
+    - Adding cards to hand
+    - Calculating hand value
+    - Displaying hand contents
+    """
+    
     def __init__(self):
+        """Initialize an empty hand."""
         self.cards: List[Card] = []
 
-    def add_card(self, card: Card):
+    def add_card(self, card: Card) -> None:
+        """
+        Add a card to the hand.
+        
+        Args:
+            card (Card): The card to add
+        """
         self.cards.append(card)
 
     def get_value(self) -> int:
+        """
+        Calculate the value of the hand.
+        
+        Returns:
+            int: The total value of the hand
+            Note: Aces are worth 11 if possible, otherwise 1
+        """
         value = 0
         aces = 0
 
@@ -69,13 +137,30 @@ class Hand:
         return value
 
     def __str__(self) -> str:
+        """Returns string representation of the hand."""
         return " | ".join(card.get_emoji() for card in self.cards)
 
 class BlackjackExtension(interactions.Extension):
-    active_games = {}
+    """
+    Handles blackjack game functionality.
+    
+    This extension provides:
+    - Game initialization and management
+    - Interactive gameplay
+    - Balance integration
+    - Timeout handling
+    """
+    
+    active_games: Dict[str, Dict] = {}
     GAME_TIMEOUT = 300  # 5 minutes in seconds
 
-    def create_buttons(self):
+    def create_buttons(self) -> List[Button]:
+        """
+        Create the game control buttons.
+        
+        Returns:
+            List[Button]: List of hit and stand buttons
+        """
         hit_button = Button(
             style=ButtonStyle.SUCCESS,
             label="Hit",
@@ -90,7 +175,19 @@ class BlackjackExtension(interactions.Extension):
         
         return [hit_button, stand_button]
 
-    def create_game_embed(self, player_hand: Hand, dealer_hand: Hand, bet: int, show_dealer=False):
+    def create_game_embed(self, player_hand: Hand, dealer_hand: Hand, bet: int, show_dealer: bool = False) -> interactions.Embed:
+        """
+        Create the game state embed.
+        
+        Args:
+            player_hand (Hand): Player's current hand
+            dealer_hand (Hand): Dealer's current hand
+            bet (int): Current bet amount
+            show_dealer (bool): Whether to show dealer's full hand
+            
+        Returns:
+            interactions.Embed: Formatted game state embed
+        """
         if not show_dealer:
             dealer_cards = f"{dealer_hand.cards[0]} | **?**"
             dealer_value = "?"
@@ -125,8 +222,16 @@ class BlackjackExtension(interactions.Extension):
 
         return embed
 
-    async def timeout_game(self, user_id: str):
-        """Timeout a game after GAME_TIMEOUT seconds of inactivity"""
+    async def timeout_game(self, user_id: str) -> None:
+        """
+        Handle game timeout after inactivity.
+        
+        Args:
+            user_id (str): ID of the user whose game timed out
+            
+        Note:
+            Deducts bet amount and updates user's balance
+        """
         await asyncio.sleep(self.GAME_TIMEOUT)
         if user_id in self.active_games:
             game = self.active_games[user_id]
@@ -168,7 +273,19 @@ class BlackjackExtension(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def blackjack(self, ctx: interactions.SlashContext, bet: str):
+    async def blackjack(self, ctx: interactions.SlashContext, bet: str) -> None:
+        """
+        Start a new game of blackjack.
+        
+        Args:
+            ctx (SlashContext): Command context
+            bet (str): Bet amount or "all"
+            
+        Note:
+            - Validates user's balance
+            - Initializes game state
+            - Starts timeout timer
+        """
         # Verify user has enough money
         with open("data.json", "r") as f:
             data = json.load(f)
@@ -242,7 +359,18 @@ class BlackjackExtension(interactions.Extension):
         asyncio.create_task(self.timeout_game(user_id))
 
     @interactions.component_callback("hit_button")
-    async def hit_callback(self, ctx: ComponentContext):
+    async def hit_callback(self, ctx: ComponentContext) -> None:
+        """
+        Handle hit button press.
+        
+        Args:
+            ctx (ComponentContext): Button interaction context
+            
+        Note:
+            - Adds card to player's hand
+            - Checks for bust
+            - Updates game display
+        """
         try:
             # Immediately defer the interaction to prevent timeout
             await ctx.defer(edit_origin=True)
@@ -282,7 +410,18 @@ class BlackjackExtension(interactions.Extension):
                 pass
 
     @interactions.component_callback("stand_button")
-    async def stand_callback(self, ctx: ComponentContext):
+    async def stand_callback(self, ctx: ComponentContext) -> None:
+        """
+        Handle stand button press.
+        
+        Args:
+            ctx (ComponentContext): Button interaction context
+            
+        Note:
+            - Dealer draws cards until 17 or higher
+            - Determines winner
+            - Ends game
+        """
         try:
             # Immediately defer the interaction to prevent timeout
             await ctx.defer(edit_origin=True)
@@ -325,7 +464,20 @@ class BlackjackExtension(interactions.Extension):
             except:
                 pass
 
-    async def end_game(self, ctx: ComponentContext, user_id: str, result: str):
+    async def end_game(self, ctx: ComponentContext, user_id: str, result: str) -> None:
+        """
+        End the game and process results.
+        
+        Args:
+            ctx (ComponentContext): Interaction context
+            user_id (str): ID of the player
+            result (str): Game result (BUST, DEALER_BUST, DEALER_WIN, PLAYER_WIN, TIE)
+            
+        Note:
+            - Updates player's balance
+            - Shows final game state
+            - Cleans up game data
+        """
         game = self.active_games[user_id]
         player_hand = game["player_hand"]
         dealer_hand = game["dealer_hand"]
@@ -390,4 +542,5 @@ class BlackjackExtension(interactions.Extension):
         del self.active_games[user_id]
 
 def setup(bot):
+    """Initialize the blackjack extension."""
     BlackjackExtension(bot) 

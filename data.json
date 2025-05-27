@@ -54,6 +54,16 @@
                 "id": "lucky_charm",
                 "name": "Lucky Charm",
                 "type": "permanent"
+            },
+            {
+                "id": "lucky_charm",
+                "name": "Lucky Charm",
+                "type": "permanent"
+            },
+            {
+                "id": "work_boost",
+                "name": "Work Boost",
+                "type": "permanent"
             }
         ]
     },

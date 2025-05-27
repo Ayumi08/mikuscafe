@@ -1,12 +1,34 @@
 """
-This file provides code for shops.
+Shop System for Miku's Café Bot
+
+This module implements the shop and inventory system, providing:
+- Item shop with purchasable items
+- Inventory management
+- Staff item management tools
+- Balance integration
+
+The system includes features like:
+- Permanent items with special effects
+- Item purchase validation
+- Inventory viewing and management
+- Staff-only item management commands
+- Balance tracking and updates
+
+Constants:
+    SHOP_ITEMS (Dict): Dictionary of available shop items with their properties:
+        - name: Display name of the item
+        - description: Item description and effects
+        - price: Cost in currency
+        - type: Item type (e.g., permanent)
 """
+
 import os
 import interactions
 import json
-from config import DEV_GUILD
+from config import DEV_GUILD, STAFF_IDS
 from src import logutil
-from interactions import check, is_owner
+from interactions import check
+from typing import Dict, List, Optional, Union
 
 logger = logutil.init_logger(os.path.basename(__file__))
 
@@ -24,17 +46,46 @@ SHOP_ITEMS = {
         "price": 10000,
         "type": "permanent"
     },
-    
 }
 
+async def is_staff(ctx: interactions.SlashContext) -> bool:
+    """
+    Check if the user is a staff member.
+    
+    Args:
+        ctx (SlashContext): The command context
+        
+    Returns:
+        bool: True if the user is a staff member, False otherwise
+    """
+    return ctx.user.id in STAFF_IDS
+
 class Shop(interactions.Extension):
+    """
+    Handles shop and inventory functionality.
+    
+    This extension provides:
+    - Shop display and item browsing
+    - Item purchase system
+    - Inventory management
+    - Staff item management tools
+    """
+    
     @interactions.slash_command(
         "shop", 
         description="View the shop and buy items!", 
         scopes=[DEV_GUILD] if DEV_GUILD else None
     )
-    async def shop(self, ctx: interactions.SlashContext):
-        """Display the shop items"""
+    async def shop(self, ctx: interactions.SlashContext) -> None:
+        """
+        Display the shop interface with available items.
+        
+        Args:
+            ctx (SlashContext): Command context
+            
+        Note:
+            Shows item name, price, and description for each available item
+        """
         embed = interactions.Embed(
             title="🏪 Miku's Shop",
             description="Welcome to the shop! Use `/buy` to purchase items.",
@@ -65,8 +116,20 @@ class Shop(interactions.Extension):
             for item_id, item in SHOP_ITEMS.items()
         ]
     )
-    async def buy(self, ctx: interactions.SlashContext, item: str):
-        """Handle item purchases"""
+    async def buy(self, ctx: interactions.SlashContext, item: str) -> None:
+        """
+        Handle item purchase requests.
+        
+        Args:
+            ctx (SlashContext): Command context
+            item (str): ID of the item to purchase
+            
+        Note:
+            - Validates user's balance
+            - Checks for duplicate items
+            - Updates user's inventory and balance
+            - Sends purchase confirmation
+        """
         with open("data.json", "r") as f:
             info = json.load(f)
         
@@ -137,8 +200,19 @@ class Shop(interactions.Extension):
         opt_type=interactions.OptionType.USER,
         required=False
     )
-    async def inventory(self, ctx: interactions.SlashContext, user="None"):
-        """Display user's inventory"""
+    async def inventory(self, ctx: interactions.SlashContext, user: Optional[Union[str, interactions.User]] = "None") -> None:
+        """
+        Display a user's inventory.
+        
+        Args:
+            ctx (SlashContext): Command context
+            user (Optional[Union[str, interactions.User]]): Target user, defaults to command sender
+            
+        Note:
+            - Shows all items in user's inventory
+            - Displays empty inventory message if no items
+            - Can view other users' inventories
+        """
         with open("data.json", "r") as f:
             info = json.load(f)
         
@@ -170,10 +244,10 @@ class Shop(interactions.Extension):
 
     @interactions.slash_command(
         "manage_items",
-        description="Manage user items",
+        description="Staff only - Manage user items",
         scopes=[DEV_GUILD] if DEV_GUILD else None
     )
-    @check(is_owner())
+    @check(is_staff)
     @interactions.slash_option(
         "action",
         "Add or remove an item",
@@ -200,8 +274,22 @@ class Shop(interactions.Extension):
             for item_id, item in SHOP_ITEMS.items()
         ]
     )
-    async def manage_items(self, ctx: interactions.SlashContext, action: str, user: interactions.User, item: str):
-        """Manage user items (Owner only)"""
+    async def manage_items(self, ctx: interactions.SlashContext, action: str, user: interactions.User, item: str) -> None:
+        """
+        Manage user items (Staff only).
+        
+        Args:
+            ctx (SlashContext): Command context
+            action (str): Action to perform (add/remove)
+            user (interactions.User): Target user
+            item (str): Item ID to manage
+            
+        Note:
+            - Staff-only command
+            - Can add or remove items from user inventories
+            - Updates database with changes
+            - Sends confirmation message with staff member's name
+        """
         with open("data.json", "r") as f:
             info = json.load(f)
         
@@ -226,7 +314,7 @@ class Shop(interactions.Extension):
             
             embed = interactions.Embed(
                 title="Item Added",
-                description=f"Added {item_data['name']} to {user.display_name}'s inventory!",
+                description=f"Added {item_data['name']} to <@{user_id}>'s inventory!\n\nModified by: {ctx.user.display_name}",
                 color=interactions.Color.from_hex("#86cecb")
             )
         else:  # remove
@@ -236,7 +324,7 @@ class Shop(interactions.Extension):
             
             embed = interactions.Embed(
                 title="Item Removed",
-                description=f"Removed {item_data['name']} from {user.display_name}'s inventory!",
+                description=f"Removed {item_data['name']} from <@{user_id}>'s inventory!\n\nModified by: {ctx.user.display_name}",
                 color=interactions.Color.from_hex("#86cecb")
             )
         
