@@ -17,7 +17,7 @@ A feature-rich Discord bot built with discord.py-interactions that provides vari
 - Discord Server with appropriate permissions
 
 ## Installation
-
+MEOWWWWWWWWWWWWWWWW
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/mikuscafe.git
