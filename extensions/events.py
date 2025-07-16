@@ -39,6 +39,7 @@ class MessageEvents(interactions.Extension):
     def __init__(self, client):
         super().__init__(client)
         self.reaction_ban_enabled = True
+        logger.info(f"MessageEvents initialized with reaction_ban_enabled = {self.reaction_ban_enabled}")
     
     @listen()
     async def on_message_create(self, event: interactions.events.MessageCreate) -> None:
@@ -160,6 +161,11 @@ class MessageEvents(interactions.Extension):
         When enabled: Users get the reaction ban role when using banned emojis
         When disabled: Users only get warned but no role is assigned
         """
+        # Initialize the attribute if it doesn't exist
+        if not hasattr(self, 'reaction_ban_enabled'):
+            self.reaction_ban_enabled = True
+            logger.warning("reaction_ban_enabled attribute was missing, initialized to True")
+        
         self.reaction_ban_enabled = not self.reaction_ban_enabled
         status = "enabled" if self.reaction_ban_enabled else "disabled"
         
