@@ -107,17 +107,29 @@ class MessageEvents(interactions.Extension):
                 # Remove the reaction
                 await message.remove_reaction(event.emoji, event.author)
                 
-                # Try to send warning as DM first, fallback to channel message with auto-deletion
-                warning = f"⚠️ The use of that emoji is banned in this server. Further usage will result in a reaction ban."
-                try:
-                    dm_channel = await event.author.create_dm()
-                    await dm_channel.send(warning)
-                except:
-                    # Fallback to channel message with auto-deletion if DM fails
-                    warning_with_mention = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban."
-                    await channel.send(warning_with_mention, delete_after=30)
+                # Get the guild and reaction ban role
+                guild = await self.client.fetch_guild(event.message.guild.id)
+                reaction_ban_role = guild.get_role(1329546363662368859)
                 
-                logger.info(f"Removed banned emoji reaction from message {event.message.id}")
+                # Add the reaction ban role to the user
+                if reaction_ban_role:
+                    member = await guild.fetch_member(event.author.id)
+                    await member.add_role(reaction_ban_role)
+                    
+                    # Try to send warning as DM first, fallback to channel message with auto-deletion
+                    warning = f"⚠️ You have been given the reaction ban role for using a banned emoji in this server."
+                    try:
+                        dm_channel = await event.author.create_dm()
+                        await dm_channel.send(warning)
+                    except:
+                        # Fallback to channel message with auto-deletion if DM fails
+                        warning_with_mention = f"⚠️ {event.author.mention}, you have been given the reaction ban role for using a banned emoji."
+                        await channel.send(warning_with_mention, delete_after=30)
+                    
+                    logger.info(f"Added reaction ban role to user {event.author.id} for banned emoji reaction on message {event.message.id}")
+                else:
+                    logger.error("Reaction ban role not found")
+                
             except Exception as e:
-                logger.error(f"Failed to remove reaction: {str(e)}")
+                logger.error(f"Failed to process banned emoji reaction: {str(e)}")
         
