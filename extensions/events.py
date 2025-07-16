@@ -36,6 +36,10 @@ class MessageEvents(interactions.Extension):
     - Custom reaction responses
     """
     
+    def __init__(self, client):
+        super().__init__(client)
+        self.reaction_ban_enabled = True
+    
     @listen()
     async def on_message_create(self, event: interactions.events.MessageCreate) -> None:
         """
@@ -111,8 +115,8 @@ class MessageEvents(interactions.Extension):
                 guild = await self.client.fetch_guild(event.message.guild.id)
                 reaction_ban_role = guild.get_role(1329546363662368859)
                 
-                # Add the reaction ban role to the user
-                if reaction_ban_role:
+                # Add the reaction ban role to the user only if enabled
+                if self.reaction_ban_enabled and reaction_ban_role:
                     member = await guild.fetch_member(event.author.id)
                     await member.add_role(reaction_ban_role)
                     
@@ -127,9 +131,38 @@ class MessageEvents(interactions.Extension):
                         await channel.send(warning_with_mention, delete_after=30)
                     
                     logger.info(f"Added reaction ban role to user {event.author.id} for banned emoji reaction on message {event.message.id}")
-                else:
+                elif not self.reaction_ban_enabled:
+                    # Send warning without adding role
+                    warning = f"⚠️ You used a banned emoji. Please refrain from using banned emojis or you will be reaction banned."
+                    try:
+                        dm_channel = await event.author.create_dm()
+                        await dm_channel.send(warning)
+                    except:
+                        # Fallback to channel message with auto-deletion if DM fails
+                        warning_with_mention = f"⚠️ {event.author.mention}, you used a banned emoji. Please refrain from using banned emojis or you will be reaction banned."
+                        await channel.send(warning_with_mention, delete_after=30)
+                    
+                    logger.info(f"Warned user {event.author.id} for banned emoji reaction on message {event.message.id} (role addition disabled)")
+                elif not reaction_ban_role:
                     logger.error("Reaction ban role not found")
                 
             except Exception as e:
                 logger.error(f"Failed to process banned emoji reaction: {str(e)}")
+    
+    @interactions.slash_command(
+        name="toggle_reaction_ban",
+        description="Toggle reaction ban role assignment for banned emojis"
+    )
+    async def toggle_reaction_ban(self, ctx: interactions.SlashContext):
+        """
+        Toggle the reaction ban role assignment functionality.
+        
+        When enabled: Users get the reaction ban role when using banned emojis
+        When disabled: Users only get warned but no role is assigned
+        """
+        self.reaction_ban_enabled = not self.reaction_ban_enabled
+        status = "enabled" if self.reaction_ban_enabled else "disabled"
+        
+        await ctx.send(f"Reaction ban role assignment is now **{status}**")
+        logger.info(f"Reaction ban role assignment toggled to {status} by {ctx.author.id}")
         
