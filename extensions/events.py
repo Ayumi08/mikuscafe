@@ -107,9 +107,15 @@ class MessageEvents(interactions.Extension):
                 # Remove the reaction
                 await message.remove_reaction(event.emoji, event.author)
                 
-                # Send warning message that auto-deletes after 30 seconds
-                warning = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban."
-                await channel.send(warning, delete_after=30)
+                # Try to send warning as DM first, fallback to channel message with auto-deletion
+                warning = f"⚠️ The use of that emoji is banned in this server. Further usage will result in a reaction ban."
+                try:
+                    dm_channel = await event.author.create_dm()
+                    await dm_channel.send(warning)
+                except:
+                    # Fallback to channel message with auto-deletion if DM fails
+                    warning_with_mention = f"⚠️ {event.author.mention}, the use of that emoji is banned in this server. Further usage will result in a reaction ban."
+                    await channel.send(warning_with_mention, delete_after=30)
                 
                 logger.info(f"Removed banned emoji reaction from message {event.message.id}")
             except Exception as e:
