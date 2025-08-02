@@ -22,6 +22,7 @@ import os
 import interactions
 from src import logutil
 from interactions import listen
+from config import STAFF_IDS, EVENT_IDS
 
 logger = logutil.init_logger(os.path.basename(__file__))
 
@@ -161,6 +162,9 @@ class MessageEvents(interactions.Extension):
         When enabled: Users get the reaction ban role when using banned emojis
         When disabled: Users only get warned but no role is assigned
         """
+        if ctx.user.id not in STAFF_IDS and ctx.user.id not in EVENT_IDS:
+            await ctx.send("You don't have permission to use this command.", ephemeral=True)
+            return
         # Initialize the attribute if it doesn't exist
         if not hasattr(self, 'reaction_ban_enabled'):
             self.reaction_ban_enabled = True

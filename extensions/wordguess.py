@@ -33,7 +33,7 @@ class WordGuessExtension(interactions.Extension):
         self.bot = bot
         self.game_active = True
         self.secret_word = os.getenv('SECRET_WORD', 'miku').lower()
-        self.cooldown_hours = 3
+        self.cooldown_minutes = 10
         
         # Load or initialize user cooldowns
         self.load_cooldowns()
@@ -61,7 +61,7 @@ class WordGuessExtension(interactions.Extension):
             return False, datetime.now()
         
         last_guess = datetime.fromisoformat(self.user_cooldowns[user_id])
-        next_guess = last_guess + timedelta(hours=self.cooldown_hours)
+        next_guess = last_guess + timedelta(minutes=self.cooldown_minutes)
         
         if datetime.now() < next_guess:
             return True, next_guess
@@ -79,7 +79,7 @@ class WordGuessExtension(interactions.Extension):
         """Create the main guessing game embed."""
         embed = interactions.Embed(
             title="Guess the Word Scavenger Hunt",
-            description="Think you know the word? Submit your guess below! You get one submission every 3 hours.",
+            description="Think you know the word? Submit your guess below! You get one submission every 10 minutes.",
             color=interactions.Color.from_hex("#86cecb")
         )
         return embed
@@ -127,10 +127,10 @@ class WordGuessExtension(interactions.Extension):
         
         if on_cooldown:
             time_left = next_time - datetime.now()
-            hours = int(time_left.total_seconds() // 3600)
-            minutes = int((time_left.total_seconds() % 3600) // 60)
+            minutes = int(time_left.total_seconds() // 60)
+            seconds = int(time_left.total_seconds() % 60)
             await ctx.send(
-                f"You're on cooldown! Try again in {hours}h {minutes}m.", 
+                f"You're on cooldown! Try again in {minutes}m {seconds}s.", 
                 ephemeral=True
             )
             return
@@ -161,7 +161,7 @@ class WordGuessExtension(interactions.Extension):
         else:
             # Incorrect guess - ephemeral message
             await ctx.send(
-                "Incorrect, try again in 3 hours!",
+                "Incorrect, try again in 10 minutes!",
                 ephemeral=True
             )
     
