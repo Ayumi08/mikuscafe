@@ -155,7 +155,7 @@ class WordGuessExtension(interactions.Extension):
         if guess == self.secret_word:
             # Correct guess - public announcement
             await ctx.send(
-                f":partying_face: <@{user_id}> has guessed the word correctly!",
+                f":partying_face: <@{user_id}> has guessed the word correctly!\n\nYou may have discovered the hens, yet has the proud rooster 🐓 graced your sight?",
                 ephemeral=False
             )
         else:
