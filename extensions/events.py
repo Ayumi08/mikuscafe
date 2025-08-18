@@ -38,7 +38,7 @@ class MessageEvents(interactions.Extension):
     """
     
     def __init__(self, client):
-        super().__init__(client)
+        super().__init__()
         self.reaction_ban_enabled = True
         logger.info(f"MessageEvents initialized with reaction_ban_enabled = {self.reaction_ban_enabled}")
     

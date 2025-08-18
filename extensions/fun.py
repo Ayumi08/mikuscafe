@@ -87,15 +87,23 @@ class FunExtension(interactions.Extension):
     )
     @interactions.slash_option(
         name="duration",
-        description="How many times to ping (1-10, default: 3)",
+        description="How many times to ping (1-50, default: 3)",
+        opt_type=interactions.OptionType.INTEGER,
+        required=True,
+        min_value=1,
+        max_value=50
+    )
+    @interactions.slash_option(
+        name="between",
+        description="How much time to wait before pinging in seconds (1-600, default: 300)",
         opt_type=interactions.OptionType.INTEGER,
         required=False,
         min_value=1,
-        max_value=20
+        max_value=600
     )
-    async def annoy_ping(self, ctx: interactions.SlashContext, user: interactions.User, duration: int = 3):
-        """Ping a user every 5 minutes for a specified duration."""
-        
+    async def annoy_ping(self, ctx: interactions.SlashContext, user: interactions.User, duration: int = 3, between: int = 300):
+        """Ping a user for a specified duration."""
+
         # Check if user is authorized (Ayumi or Batzy)
         ayumi_id = 705137748884848691
         batzy_id = 332262693626970112
@@ -112,15 +120,15 @@ class FunExtension(interactions.Extension):
             await ctx.send("❌ You can't ping bots!", ephemeral=True)
             return
         
-        await ctx.send(f"🔔 Starting to ping {user.mention} every 5 minutes for {duration} times!", ephemeral=True)
+        await ctx.send(f"🔔 Starting to ping {user.mention} every {between} seconds for {duration} times!", ephemeral=False)
         
         for i in range(duration):
             await ctx.channel.send(f"🔔 **Ping #{i+1}** - {user.mention}")
             
             if i < duration - 1:  # Don't wait after the last ping
-                await asyncio.sleep(300)  # 300 seconds = 5 minutes
-        
-        await ctx.followup.send(f"✅ Finished pinging {user.mention}!", ephemeral=True)
+                await asyncio.sleep(between)  # 300 seconds = 5 minutes
+
+        await ctx.channel.send(f"✅ Finished pinging {user.mention}!")
 
 def setup(bot):
     """Initialize the fun extension."""
