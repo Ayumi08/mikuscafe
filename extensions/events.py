@@ -83,6 +83,8 @@ class MessageEvents(interactions.Extension):
                 await event.message.add_reaction("<:fucku:1372598033132290129>")
             elif any(mention.id == 929368321365798932 for mention in mentioned_users):
                 await event.message.add_reaction("<:lenshock:1372601063932428388>")
+            elif any(mention.id == 342390512055222272 for mention in mentioned_users):
+                await event.message.add_reaction("<:tatsugiri:1407862733419974778>")
 
     @listen()
     async def on_message_reaction_add(self, event: interactions.events.MessageReactionAdd) -> None:

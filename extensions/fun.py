@@ -75,6 +75,69 @@ class FunExtension(interactions.Extension):
         await ctx.send(embed=embed)
 
     @interactions.slash_command(
+        name="fakemute",
+        description="Send a fake mute message for fun",
+        scopes=[DEV_GUILD] if DEV_GUILD else None
+    )
+    @interactions.slash_option(
+        name="user",
+        description="The user to 'mute'",
+        opt_type=interactions.OptionType.USER,
+        required=True
+    )
+    @interactions.slash_option(
+        name="reason",
+        description="The fake reason for the mute",
+        opt_type=interactions.OptionType.STRING,
+        required=False
+    )
+    @interactions.slash_option(
+        name="duration",
+        description="The fake duration for the mute",
+        opt_type=interactions.OptionType.STRING,
+        required=False
+    )
+    async def fake_mute(self, ctx: interactions.SlashContext, user: interactions.User, reason: str = "being too chatty", duration: str = "24 hours"):
+        """Send a fake mute message."""
+        
+        embed = interactions.Embed(
+            title="🔇 User Muted",
+            description=f"**{user.display_name}** has been muted in the server!",
+            color=interactions.BrandColors.YELLOW
+        )
+        
+        embed.add_field(
+            name="👤 User",
+            value=f"{user.mention} ({user.username})",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🛡️ Moderator",
+            value=ctx.user.mention,
+            inline=True
+        )
+        
+        embed.add_field(
+            name="⏰ Duration",
+            value=duration,
+            inline=True
+        )
+        
+        embed.add_field(
+            name="📝 Reason",
+            value=reason,
+            inline=False
+        )
+        
+        embed.set_footer(text="⚠️ This is a fake mute message for entertainment purposes only!")
+        
+        if user.avatar:
+            embed.set_thumbnail(url=user.avatar.url)
+        
+        await ctx.send(embed=embed)
+
+    @interactions.slash_command(
         name="annoyping",
         description="Ping a user every 5 minutes (batzy only)",
         scopes=[DEV_GUILD] if DEV_GUILD else None
